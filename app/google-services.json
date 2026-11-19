@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "242520855962",
+    "project_id": "interncert-42667",
+    "storage_bucket": "interncert-42667.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242520855962:android:5cf513827a394dce8c9623",
+        "android_client_info": {
+          "package_name": "com.example.interncert"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAZAcsD2rf0o3jGrTR5xvIOOo_u63EhFc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

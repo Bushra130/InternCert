@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternCert - Certificate Verification</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #FDF8F0; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .card { background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; border-top: 6px solid #C6923B; }
+        h2 { color: #333333; font-size: 20px; margin-bottom: 5px; }
+        .subtitle { color: #666666; font-size: 12px; margin-bottom: 20px; }
+        .info-group { margin-bottom: 15px; }
+        label { font-size: 11px; color: #888888; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        value { font-size: 15px; color: #333333; font-weight: bold; }
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-top: 10px; }
+        .verified { background-color: #E8F5E9; color: #2E7D32; }
+        .pending { background-color: #FFEBEE; color: #D32F2F; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>InternCert Verification</h2>
+    <div class="subtitle">Official Digital Credential System</div>
+
+    <div id="loading">Loading certificate details...</div>
+
+    <div id="content" style="display: none;">
+        <div class="info-group">
+            <label>Recipient File / Program</label>
+            <div id="fileName" style="font-size: 16px; font-weight: bold; color: #C6923B;">-</div>
+        </div>
+        <div class="info-group">
+            <label>Certificate ID</label>
+            <div id="certId">-</div>
+        </div>
+        <div class="info-group">
+            <label>Verification Status</label>
+            <div id="statusBadge" class="status-badge">-</div>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDKs via CDN -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<script>
+    // TODO: Replace with your actual Firebase project configuration from Firebase Console
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Extract ID from URL query parameters (e.g., verify.html?id=ICERT-2026-1420)
+    const urlParams = new URLSearchParams(window.location.search);
+    const certId = urlParams.get('id');
+
+    if (!certId) {
+        document.getElementById('loading').innerText = "Invalid or missing Certificate ID.";
+    } else {
+        // Query Firestore collection using certId
+        db.collection("certificates").whereEqualTo("certId", certId).limit(1).get()
+            .then((querySnapshot) => {
+                document.getElementById('loading').style.display = 'none';
+                if (!querySnapshot.empty) {
+                    const doc = querySnapshot.docs[0].data();
+                    document.getElementById('content').style.display = 'block';
+                    document.getElementById('fileName').innerText = doc.fileName || "Internship Certificate";
+                    document.getElementById('certId').innerText = doc.certId;
+
+                    const statusBadge = document.getElementById('statusBadge');
+                    if (doc.status === "Verified") {
+                        statusBadge.innerText = "Authentic & Approved";
+                        statusBadge.className = "status-badge verified";
+                    } else {
+                        statusBadge.innerText = "Pending Admin Approval";
+                        statusBadge.className = "status-badge pending";
+                    }
+                } else {
+                    document.getElementById('loading').style.display = 'block';
+                    document.getElementById('loading').innerText = "Certificate record not found in database.";
+                }
+            })
+            .catch((error) => {
+                document.getElementById('loading').innerText = "Error loading certificate data.";
+            });
+    }
+</script>
+</body>
+</html>
